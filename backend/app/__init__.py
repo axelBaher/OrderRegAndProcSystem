@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from backend.app.api import APIRouter
+from backend.app.api.router import MainRouter
 
 
 def create_app() -> FastAPI:
@@ -7,5 +7,9 @@ def create_app() -> FastAPI:
     return application
 
 
+def init_routers(app_: FastAPI) -> None:
+    app_.include_router(MainRouter)
+
+
 app = create_app()
-# app.include_router(APIRouter())
+init_routers(app_=app)
