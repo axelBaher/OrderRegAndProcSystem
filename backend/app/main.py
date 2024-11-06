@@ -11,7 +11,7 @@ def read_ssl_key_password() -> str:
 
 
 def main():
-    uvicorn.run(app,
+    uvicorn.run("backend.app:app",
                 host="127.0.0.1",
                 port=8000,
                 ssl_keyfile=SSL_KEY_PATH,
