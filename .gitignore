@@ -4,7 +4,6 @@
 out
 gen
 # Other
-project-structure.md
 SSL
 requirements
-sqlite
+#sqlite
