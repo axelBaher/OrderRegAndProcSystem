@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import datetime
+
 from sqlalchemy import Integer, String, Boolean, ForeignKey, DateTime, DECIMAL
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from backend.db.base import Base
-from backend.db.session import Engine
 
 
 class Customer(Base):
@@ -12,7 +13,7 @@ class Customer(Base):
     first_name: Mapped[str] = mapped_column(type_=String(length=255), nullable=False)
     last_name: Mapped[str] = mapped_column(type_=String(length=255), nullable=False)
     patronymic: Mapped[str] = mapped_column(type_=String(length=255), nullable=True)
-    nickname: Mapped[str] = mapped_column(type_=String(length=255), nullable=False)
+    nickname: Mapped[str] = mapped_column(type_=String(length=255), nullable=False, unique=True)
     sex: Mapped[bool] = mapped_column(type_=Boolean, nullable=False)
 
     addresses: Mapped[list["CustomerAddress"]] = relationship(argument="CustomerAddress", back_populates="customer")
@@ -64,10 +65,12 @@ class WarehouseItem(Base):
     code: Mapped[str] = mapped_column(type_=String(length=255), nullable=False, unique=True)
     description: Mapped[str] = mapped_column(type_=String(length=255), nullable=False)
     price: Mapped[float] = mapped_column(type_=DECIMAL(precision=10, scale=2), nullable=False)
-    count: Mapped[int] = mapped_column(type_=Integer, nullable=False)
+    quantity: Mapped[int] = mapped_column(type_=Integer, nullable=False)
 
     order_item: Mapped["OrderItem"] = relationship(argument="OrderItem", back_populates="warehouse_item")
     warehouse: Mapped["Warehouse"] = relationship(argument="Warehouse", back_populates="items")
+    # assembly_point_item: Mapped["AssemblyPointItem"] = relationship(argument="WarehouseItem",
+    #                                                                 back_populates="warehouse_item")
 
     warehouse_id: Mapped["Warehouse"] = mapped_column(ForeignKey("warehouse.id"), type_=Integer)
 
@@ -77,9 +80,8 @@ class WarehouseItem(Base):
 class Order(Base):
     __tablename__ = "order"
     id: Mapped[int] = mapped_column(type_=Integer, primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(type_=String(length=255), nullable=False)
-    description: Mapped[str] = mapped_column(type_=String(length=255), nullable=False)
     total: Mapped[float] = mapped_column(type_=DECIMAL(precision=10, scale=2), nullable=False)
+    code: Mapped[str] = mapped_column(type_=String(length=255), nullable=False, unique=True)
 
     items: Mapped[list["OrderItem"]] = relationship(argument="OrderItem", back_populates="order")
     shipment: Mapped["Shipment"] = relationship(argument="Shipment", back_populates="order")
@@ -110,12 +112,14 @@ class OrderItem(Base):
 class Shipment(Base):
     __tablename__ = "shipment"
     id: Mapped[int] = mapped_column(type_=Integer, primary_key=True, autoincrement=True)
-    datetime: Mapped[datetime] = mapped_column(type_=DateTime, nullable=False)
+    datetime: Mapped[datetime] = mapped_column(type_=DateTime, nullable=False, default=datetime.datetime.now())
     tracking_number: Mapped[str] = mapped_column(type_=String(length=255), nullable=False)
     shipment_type: Mapped[int] = mapped_column(type_=Integer, nullable=False)
 
     order: Mapped["Order"] = relationship(argument="Order", back_populates="shipment")
-    assembly_point: Mapped["AssemblyPoint"] = relationship(argument="AssemblyPoint", back_populates="shipment")
+    # assembly_point: Mapped["AssemblyPoint"] = relationship(argument="AssemblyPoint", back_populates="shipment")
+    assembly_point_shipments: Mapped[list["AssemblyPointShipment"]] = relationship(argument="AssemblyPointShipment",
+                                                                                  back_populates="shipment")
 
     order_id: Mapped["Order"] = mapped_column(ForeignKey("order.id"), type_=Integer)
 
@@ -127,11 +131,24 @@ class AssemblyPoint(Base):
     id: Mapped[int] = mapped_column(type_=Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(type_=String(length=255), nullable=False)
 
+    # TODO: rename to assembly_point_items
     assembly_point: Mapped[list["AssemblyPointItem"]] = relationship(argument="AssemblyPointItem",
                                                                      back_populates="assembly_point")
-    shipment: Mapped["Shipment"] = relationship(argument="Shipment", back_populates="assembly_point")
+    assembly_point_shipments: Mapped[list["AssemblyPointShipment"]] = relationship(argument="AssemblyPointShipment",
+                                                                                   back_populates="assembly_point")
 
-    shipment_id: Mapped[list["Shipment"]] = mapped_column(ForeignKey("shipment.id"), type_=Integer)
+    deleted: Mapped[bool] = mapped_column(type_=Boolean, default=False)
+
+
+class AssemblyPointShipment(Base):
+    __tablename__ = "assembly_point_shipment"
+    id: Mapped[int] = mapped_column(type_=Integer, primary_key=True, autoincrement=True)
+
+    assembly_point: Mapped["AssemblyPoint"] = relationship("AssemblyPoint", back_populates="assembly_point_shipments")
+    shipment: Mapped["Shipment"] = relationship("Shipment", back_populates="assembly_point_shipments")
+
+    assembly_point_id: Mapped["AssemblyPoint"] = mapped_column(ForeignKey("assembly_point.id"), type_=Integer)
+    shipment_id: Mapped["Shipment"] = mapped_column(ForeignKey("shipment.id"), type_=Integer)
 
     deleted: Mapped[bool] = mapped_column(type_=Boolean, default=False)
 
@@ -142,9 +159,11 @@ class AssemblyPointItem(Base):
 
     assembly_point: Mapped["AssemblyPoint"] = relationship(argument="AssemblyPoint", back_populates="assembly_point")
     order_item: Mapped["OrderItem"] = relationship(argument="OrderItem", back_populates="assembly_point_item")
+    # warehouse_item: Mapped["Warehouse"] = relationship(argument="WarehouseItem", back_populates="assembly_point_item")
 
     assembly_point_id: Mapped["AssemblyPoint"] = mapped_column(ForeignKey("assembly_point.id"), type_=Integer)
     order_item_id: Mapped["OrderItem"] = mapped_column(ForeignKey("order_item.id"), type_=Integer)
+    warehouse_item_id: Mapped["WarehouseItem"] = mapped_column(ForeignKey("warehouse_item.id"), type_=Integer)
 
     deleted: Mapped[bool] = mapped_column(type_=Boolean, default=False)
 
@@ -152,19 +171,20 @@ class AssemblyPointItem(Base):
 class Payment(Base):
     __tablename__ = "payment"
     id: Mapped[int] = mapped_column(type_=Integer, primary_key=True, autoincrement=True)
-    payment_data: Mapped[DateTime] = mapped_column(type_=DateTime, nullable=False)
+    payment_data: Mapped[DateTime] = mapped_column(type_=DateTime, nullable=False, default=datetime.datetime.now())
     amount: Mapped[float] = mapped_column(type_=DECIMAL(precision=10, scale=2), nullable=False)
     currency: Mapped[str] = mapped_column(type_=String(length=255), nullable=False)
     transaction_id: Mapped[str] = mapped_column(type_=String(length=255), nullable=False)
-    type: Mapped[int] = mapped_column(type_=Integer, nullable=False)
+    method: Mapped[int] = mapped_column(type_=Integer, nullable=False)
 
     order: Mapped["Order"] = relationship(argument="Order", back_populates="payment")
 
     order_id: Mapped["Order"] = mapped_column(ForeignKey("order.id"), type_=Integer)
-    # Payment <-> Customer (???)
 
     deleted: Mapped[bool] = mapped_column(type_=Boolean, default=False)
 
 
-Base.metadata.drop_all(Engine)
-Base.metadata.create_all(Engine)
+# from backend.db.session import Engine
+#
+# Base.metadata.drop_all(Engine)
+# Base.metadata.create_all(Engine)

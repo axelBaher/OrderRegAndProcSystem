@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from sqlalchemy import URL
 
@@ -14,4 +15,6 @@ MYSQL_DBCONFIG = {"engine": "mysql",
                   "port": 3306,
                   "database": "main"}
 MYSQL_CONNECTION_STRING = "{engine}://{user}:{password}@{host}:{port}/{database}?charset=utf8".format(**MYSQL_DBCONFIG)
-print(MYSQL_CONNECTION_STRING)
+LOG_CONSOLE_ENABLED = True
+LOG_FILE_ENABLED = True
+LOG_PATH = ROOT_PATH / "backend" / "logs"

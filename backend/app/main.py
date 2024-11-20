@@ -1,5 +1,4 @@
 import uvicorn
-from backend.app import app
 from backend.core.config import SSL_KEY_PASSWORD_PATH, SSL_KEY_PATH, SSL_CERT_PATH
 import backend.app.models
 
