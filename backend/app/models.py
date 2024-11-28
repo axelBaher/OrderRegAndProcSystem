@@ -15,6 +15,8 @@ class Customer(Base):
     patronymic: Mapped[str] = mapped_column(type_=String(length=255), nullable=True)
     nickname: Mapped[str] = mapped_column(type_=String(length=255), nullable=False, unique=True)
     sex: Mapped[bool] = mapped_column(type_=Boolean, nullable=False)
+    login: Mapped[str] = mapped_column(type_=String(length=255), nullable=False)
+    password: Mapped[str] = mapped_column(type_=String(length=255), nullable=False)
 
     addresses: Mapped[list["CustomerAddress"]] = relationship(argument="CustomerAddress", back_populates="customer")
     contacts: Mapped[list["CustomerContact"]] = relationship(argument="CustomerContact", back_populates="customer")

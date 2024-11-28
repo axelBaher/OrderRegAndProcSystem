@@ -39,8 +39,10 @@ def db_fill_database(db: Session, db_count: int = 3) -> None:
                 patronymic=(fake.middle_name_male() if customer_sex else fake.middle_name_female())
                 if fake.locale() == "ru_RU" else "",
                 nickname=fake.user_name(),
-                sex=customer_sex
+                sex=customer_sex,
             )
+            customer.login = customer.nickname
+            customer.password = "sys"
             customers.append(customer)
 
     def db_fill_addresses(customer_idx: int, count: int = 1) -> None:

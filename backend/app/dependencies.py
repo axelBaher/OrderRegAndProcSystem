@@ -1,4 +1,8 @@
+from fastapi.security import HTTPBearer
+
 from ..db.session import Session
+
+security = HTTPBearer()
 
 
 def get_db():

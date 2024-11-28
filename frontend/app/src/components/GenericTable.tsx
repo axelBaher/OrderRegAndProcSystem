@@ -52,6 +52,7 @@ const GenericTable = <T extends object>({
                         width={column.width}
                         fixed={column.fixed}
                         align={column.align}
+                        resizable
                     >
                         <Table.HeaderCell>{column.title}</Table.HeaderCell>
                         <Table.Cell>
