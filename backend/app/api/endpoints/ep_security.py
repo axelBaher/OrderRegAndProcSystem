@@ -1,6 +1,7 @@
 #   region IMPORT
 from fastapi import APIRouter, Depends, status
 from fastapi.security import HTTPAuthorizationCredentials
+from pydantic import BaseModel
 
 from backend.app.crud.crud_security import *
 from backend.app.dependencies import get_db, security
@@ -12,8 +13,7 @@ SecurityRouter = APIRouter()
 
 #   region READ_SECURITY
 def get_current_customer(token: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):
-    print(f"Получен токен: {token}")    # Печатаем объект токена
-    customer_id = verify_token(token.credentials)   # Передаем именно значение токена
+    customer_id = verify_token(token.credentials)
     if not customer_id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
     customer = db.query(m.Customer).filter(m.Customer.id == customer_id).first()
@@ -44,10 +44,15 @@ def register_customer(login: str, password: str, customer_data: dict, db: Sessio
                              expected_status_code=status.HTTP_201_CREATED)
 
 
+class LoginForm(BaseModel):
+    login: str
+    password: str
+
+
 @SecurityRouter.post(
     path="/login",
     status_code=status.HTTP_200_OK)
-def login_customer(login: str, password: str, db: Session = Depends(get_db)):
-    token = db_login_customer(login=login, password=password, db=db)
+def login_customer(login_form: LoginForm, db: Session = Depends(get_db)):
+    token = db_login_customer(login=login_form.login, password=login_form.password, db=db)
     return token
 #   endregion

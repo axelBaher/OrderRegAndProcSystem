@@ -1,9 +1,5 @@
 #   region IMPORT
 import datetime
-from typing import Type
-from sqlalchemy.orm import Session
-from faker import Faker
-from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from passlib.context import CryptContext
 from fastapi import HTTPException
@@ -32,15 +28,11 @@ def generate_token(customer_id):
 
 def verify_token(token):
     try:
-        print("Verifying token...")
-        payload = jwt.decode(token, "axelbaher", algorithms=["HS256"], verify=False)
-        print(f"Payload: {payload}")
+        payload = jwt.decode(token, "axelbaher", algorithms=["HS256"])
         return payload["customer_id"]
     except jwt.ExpiredSignatureError:
-        print("Expired token")
         return None
     except jwt.InvalidTokenError:
-        print("Invalid token")
         return None
 
 
@@ -62,4 +54,4 @@ def db_login_customer(login: str, password: str, db: Session):
     if not customer or not check_password(password, customer.password):
         raise HTTPException(status_code=400, detail="Invalid credentials")
     token = generate_token(customer.id)
-    return {"token": token}
+    return token
