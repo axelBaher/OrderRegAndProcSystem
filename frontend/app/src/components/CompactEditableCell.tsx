@@ -37,7 +37,8 @@ const CompactCell: React.FC<CompactCellProps> = ({
             padding: 6,
             cursor: editable ? "pointer" : "default",
             backgroundColor: editable ? "inherit" : "#f9f9f9",
-            color: editable ? "#636363" : "inherit"
+            color: editable ? "#636363" : "inherit",
+            border: "10px",
         }}>
             {editable && isEditing ? (
                 <input
@@ -50,9 +51,9 @@ const CompactCell: React.FC<CompactCellProps> = ({
                     style={{
                         width: "100%",
                         padding: "4px",
-                        boxSizing: "border-box",
-                        border: "none",
-                        outline: "none",
+                        // boxSizing: "border-box",
+                        // border: "none",
+                        // outline: "none",
                     }}
                 />
             ) : (

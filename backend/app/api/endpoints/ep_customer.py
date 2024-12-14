@@ -214,7 +214,7 @@ def update_customer(customer_id: int, customer_data: dict, db: Session = Depends
 
 
 @CustomerRouter.put(
-    path="/{customer_id}/addresses",
+    path="/{customer_id}/addresses/{address_id}",
     status_code=status.HTTP_200_OK
 )
 def update_customer_address(address_id: int, address_data: dict, db: Session = Depends(get_db)):
@@ -223,7 +223,7 @@ def update_customer_address(address_id: int, address_data: dict, db: Session = D
 
 
 @CustomerRouter.put(
-    path="/{customer_id}/contacts",
+    path="/{customer_id}/contacts/{contact_id}",
     status_code=status.HTTP_200_OK
 )
 def update_customer_contact(contact_id: int, contact_data: dict, db: Session = Depends(get_db)):
@@ -232,7 +232,7 @@ def update_customer_contact(contact_id: int, contact_data: dict, db: Session = D
 
 
 @CustomerRouter.put(
-    path="/{customer_id}/orders",
+    path="/{customer_id}/orders/{order_id}",
     status_code=status.HTTP_200_OK
 )
 def update_customer_order(order_id: int, order_data: dict, db: Session = Depends(get_db)):

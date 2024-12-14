@@ -33,12 +33,14 @@ export const saveData = async <T extends { id: number }>(
     data: T[]
 ): Promise<void> => {
     try {
-        const updatePromises = data.map((item) =>
+        const updatePromise = data.map((item) =>
             axiosInstance.put(`https://127.0.0.1:8000${endpoint}`, item)
         );
-
-        await Promise.all(updatePromises);
-
+        const promise = await Promise.all(updatePromise);
+        const status = promise.map((result) => result.status)[0];
+        if (status === 204) { // noinspection ExceptionCaughtLocallyJS
+            return Promise.reject("Data not found");
+        }
         console.log("All changes saved successfully.");
     } catch (error) {
         console.error("Failed to save changes:", error);
@@ -165,6 +167,10 @@ const GenericTable = <T extends { id: number }>({
                 sortType={sortType as any}
                 onSortColumn={handleSortColumn as any}
                 loading={loading}>
+                bordered={true}
+                cellBordered={true}
+                {/*hover={true}*/}
+
                 {columns.map((column, index) => (
                     <Table.Column
                         key={index}
