@@ -17,10 +17,12 @@ const fetchCustomers = async (): Promise<Customer[]> => {
 
 const CustomersPage: React.FC = () => {
     return (
-        <GenericTable fetchData={fetchCustomers}
-                      columns={customerColumns}
-                      queryKey={["customers"]}
-                      tableTitle={"Customers"}/>
+        <>
+            <GenericTable fetchData={fetchCustomers}
+                        columns={customerColumns}
+                        queryKey={["customers"]}
+                        tableTitle={"Customers"}/>
+        </>
     )
 };
 
