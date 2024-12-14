@@ -29,17 +29,27 @@ const Navigation = () => {
 
     const authNavItems = () => {
         // console.log("isAuth-inApp-authNavItems: " + authContext?.isAuthenticated);
-        return localStorage.getItem("token") ? (
+        return (
             <>
-                <Nav.Item onClick={() => {
-                    navigator("/customer")
-                }}>Customer Info</Nav.Item>
-                <Nav.Item onClick={handleOpenLogoutModal}>Logout</Nav.Item>
-            </>
-        ) : (
-            <>
-                <Nav.Item onClick={() => navigator("/login")}>Login</Nav.Item>
-                <Nav.Item onClick={() => navigator("/register")}>Register</Nav.Item>
+                <Nav.Item
+                    onClick={() => {
+                        navigator("/customers");
+                    }}>
+                    All customers</Nav.Item>
+
+                {localStorage.getItem("token") ? (
+                    <>
+                        <Nav.Item onClick={() => {
+                            navigator("/customer")
+                        }}>Customer Info</Nav.Item>
+                        <Nav.Item onClick={handleOpenLogoutModal}>Logout</Nav.Item>
+                    </>
+                ) : (
+                    <>
+                        <Nav.Item onClick={() => navigator("/login")}>Login</Nav.Item>
+                        <Nav.Item onClick={() => navigator("/register")}>Register</Nav.Item>
+                    </>
+                )}
             </>
         );
     };

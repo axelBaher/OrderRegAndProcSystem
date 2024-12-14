@@ -11,7 +11,7 @@ import {
     orderColumns
 } from "../components/types";
 import axiosInstance from "../api/axiosInstance";
-import GenericTable from "../components/GenericTable";
+import GenericTable, {saveData} from "../components/GenericTable";
 import {jwtDecode} from 'jwt-decode';
 import {useLocation, useNavigate} from "react-router-dom";
 
@@ -24,7 +24,7 @@ export function getDecodedAccessToken(token: string | null): any {
     }
 }
 
-function getCustomerID(): number {
+export function getCustomerID(): number {
     const token = getDecodedAccessToken(localStorage.getItem("token"));
     try {
         if (!token) return 0;
@@ -96,18 +96,22 @@ const CustomerDetailsPage: React.FC = () => {
     const token = localStorage.getItem("token");
     console.log("Loc. key: " + location.key);
     useEffect(() => {
-    if ((location.key === "default") && (!token)) {
-      navigate("/login");
-    }
-  }, [location.key, token, navigate]);
+        if ((location.key === "default") && (!token)) {
+            navigate("/login");
+        }
+    }, [location.key, token, navigate]);
     return (
         <div>
-            <GenericTable fetchData={fetchCustomer} columns={customerColumns} queryKey={["customer"]} tableTitle={"Customer"}/>
+            <GenericTable fetchData={fetchCustomer} columns={customerColumns} queryKey={["customer"]} tableTitle={"Customer"}
+                          saveData={(data) => saveData(`/customers/${getCustomerID()}`, data)}/>
             <GenericTable fetchData={fetchCustomerAddress} columns={addressColumns} queryKey={["addresses"]}
-                          tableTitle={"Addresses"}/>
+                          tableTitle={"Addresses"}
+                          saveData={(data) => saveData(`/customers/${getCustomerID()}/addresses`, data)}/>
             <GenericTable fetchData={fetchCustomerContact} columns={contactColumns} queryKey={["contacts"]}
-                          tableTitle={"Contacts"}/>
-            <GenericTable fetchData={fetchCustomerOrder} columns={orderColumns} queryKey={["orders"]} tableTitle={"Orders"}/>
+                          tableTitle={"Contacts"}
+                          saveData={(data) => saveData(`/customers/${getCustomerID()}/contacts`, data)}/>
+            <GenericTable fetchData={fetchCustomerOrder} columns={orderColumns} queryKey={["orders"]} tableTitle={"Orders"}
+                          saveData={(data) => saveData(`/customers/${getCustomerID()}/orders`, data)}/>
         </div>
     )
 };
