@@ -53,6 +53,9 @@ class LoginForm(BaseModel):
     path="/login",
     status_code=status.HTTP_200_OK)
 def login_customer(login_form: LoginForm, db: Session = Depends(get_db)):
+    """
+     {"login": "test","password": "test"}
+    """
     token = db_login_customer(login=login_form.login, password=login_form.password, db=db)
     return token
 #   endregion
