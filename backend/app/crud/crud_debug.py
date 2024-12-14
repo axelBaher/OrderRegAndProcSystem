@@ -5,6 +5,7 @@ from faker import Faker
 
 from sqlalchemy.orm import Session
 from backend.app import models as m
+from backend.app.crud.crud_security import hash_password
 from backend.app.schemas import *
 
 #   endregion
@@ -42,7 +43,7 @@ def db_fill_database(db: Session, db_count: int = 3) -> None:
                 sex=customer_sex,
             )
             customer.login = customer.nickname
-            customer.password = "sys"
+            customer.password = hash_password(password="test")
             customers.append(customer)
 
     def db_fill_addresses(customer_idx: int, count: int = 1) -> None:
