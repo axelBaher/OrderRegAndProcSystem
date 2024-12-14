@@ -22,11 +22,11 @@ def get_current_customer(token: HTTPAuthorizationCredentials = Depends(security)
     return customer
 
 
-@SecurityRouter.get(
-    path="/protected",
-    status_code=status.HTTP_200_OK)
-def protected_endpoint(current_user: m.Customer = Depends(get_current_customer)):
-    return {"message": "Hello, authenticated user!"}
+# @SecurityRouter.get(
+#     path="/protected",
+#     status_code=status.HTTP_200_OK)
+# def protected_endpoint(current_user: m.Customer = Depends(get_current_customer)):
+#     return {"message": "Hello, authenticated user!"}
 
 
 #   endregion

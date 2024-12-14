@@ -13,6 +13,7 @@ def init_routers(app_: FastAPI) -> None:
     app_.include_router(MainRouter)
 
 
+# noinspection PyTypeChecker
 def init_cors(app_: FastAPI) -> None:
     app_.add_middleware(
         CORSMiddleware,

@@ -121,7 +121,7 @@ class Shipment(Base):
     order: Mapped["Order"] = relationship(argument="Order", back_populates="shipment")
     # assembly_point: Mapped["AssemblyPoint"] = relationship(argument="AssemblyPoint", back_populates="shipment")
     assembly_point_shipments: Mapped[list["AssemblyPointShipment"]] = relationship(argument="AssemblyPointShipment",
-                                                                                  back_populates="shipment")
+                                                                                   back_populates="shipment")
 
     order_id: Mapped["Order"] = mapped_column(ForeignKey("order.id"), type_=Integer)
 
@@ -184,7 +184,6 @@ class Payment(Base):
     order_id: Mapped["Order"] = mapped_column(ForeignKey("order.id"), type_=Integer)
 
     deleted: Mapped[bool] = mapped_column(type_=Boolean, default=False)
-
 
 # from backend.db.session import Engine
 #

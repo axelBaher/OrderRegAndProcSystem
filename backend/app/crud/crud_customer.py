@@ -331,11 +331,11 @@ def db_delete_order_item(customer_id: int, order_id: int, order_item_id: int, db
         return order_item
 
 
-def db_delete_order_payment(order_id: int, order_payment_id: int, db: Session):
-    pass
-
-
-def db_delete_order_shipment(shipment_id: int, shipment_data: dict, db: Session):
-    pass
+# def db_delete_order_payment(order_id: int, order_payment_id: int, db: Session):
+#     pass
+#
+#
+# def db_delete_order_shipment(shipment_id: int, shipment_data: dict, db: Session):
+#     pass
 
 # endregion

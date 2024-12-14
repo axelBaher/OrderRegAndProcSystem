@@ -313,17 +313,17 @@ def delete_order_item(customer_id: int, order_id: int, order_item_id: int, db: S
                              query_args={"customer_id": customer_id, "order_id": order_id, "order_item_id": order_item_id})
 
 
-@CustomerRouter.delete(
-    path="/{customer_id}/orders/{order_id}/payment"
-)
-def delete_order_payment(customer_id: int, order_id: int, payment_id: int, db: Session = Depends(get_db)):
-    pass
-
-
-@CustomerRouter.delete(
-    path="/{customer_id}/orders/{order_id}/shipment"
-)
-def delete_order_shipment(customer_id: int, order_id: int, shipment_id: int, db: Session = Depends(get_db)):
-    pass
+# @CustomerRouter.delete(
+#     path="/{customer_id}/orders/{order_id}/payment"
+# )
+# def delete_order_payment(customer_id: int, order_id: int, payment_id: int, db: Session = Depends(get_db)):
+#     pass
+#
+#
+# @CustomerRouter.delete(
+#     path="/{customer_id}/orders/{order_id}/shipment"
+# )
+# def delete_order_shipment(customer_id: int, order_id: int, shipment_id: int, db: Session = Depends(get_db)):
+#     pass
 
 #   endregion
