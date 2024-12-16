@@ -1,12 +1,16 @@
 // GenericTable.tsx
 import React, {useEffect, useMemo, useState} from "react";
-import {useQuery} from "@tanstack/react-query";
+import {QueryObserverResult, RefetchOptions, useQuery} from "@tanstack/react-query";
 import {
     Table,
-    Loader, Button,
+    Loader, Button, IconButton, Stack,
 } from "rsuite";
-import CompactCell from "./CompactEditableCell";
 import axiosInstance from "../api/axiosInstance";
+import {EntityType} from "./types";
+import PlusIcon from '@rsuite/icons/Trash';
+import CompactCell from "./CompactEditableCell";
+import {AddressAddModal} from "../pages/modal/AddressAddModal";
+import {getCustomerID} from "../pages/CustomerDetails";
 
 export interface TableColumn<T> {
     title: string,
@@ -14,8 +18,9 @@ export interface TableColumn<T> {
     width?: number,
     fixed?: boolean,
     align?: "left" | "center" | "right",
-    render?: (rowData: T) => React.ReactNode,
-    editable?: boolean;
+    render?: (rowData: any, refetch?: (props: any) => any) => React.ReactNode,
+    editable?: boolean,
+    visible?: boolean;
 }
 
 interface GenericTableProps<T> {
@@ -28,39 +33,90 @@ interface GenericTableProps<T> {
     enableAdd?: boolean;
 }
 
-export const saveData = async <T extends { id: number }>(
-    endpoint: string,
+function getEndpoint(item: any) {
+    let endpoint = null;
+    switch (item.eType) {
+        case "Customer":
+            endpoint = `/customers/${item.id ?? ""}`;
+            break;
+        case "Address":
+            endpoint = `/customers/${item.customer_id}/addresses/${item.id ?? ""}`;
+            break;
+        case "Contact":
+            endpoint = `/customers/${item.customer_id}/contacts/${item.id ?? ""}`;
+            break;
+        case "Order":
+            endpoint = `/customers/${item.customer_id}/orders/${item.id ?? ""}`;
+            break;
+    }
+    return endpoint;
+}
+
+export const saveData = async <T extends { id: number | undefined | null, eType: EntityType | undefined | null }>(
+    // endpoint: string,
     data: T[]
 ): Promise<void> => {
+    // try {
+    //     const updatePromise = data.map((item) =>
+    //         axiosInstance.put(`https://127.0.0.1:8000${endpoint}`, item)
+    //     );
+    //     const promise = await Promise.all(updatePromise);
+    //     const status = promise.map((result) => result.status)[0];
+    //     if (status === 204) { // noinspection ExceptionCaughtLocallyJS
+    //         return Promise.reject("Data not found");
+    //     }
+    //     console.log("All changes saved successfully.");
+    // } catch (error) {
+    //     console.error("Failed to save changes:", error);
+    //     throw new Error("Failed to save changes. Please try again.");
+    // }
     try {
-        const updatePromise = data.map((item) =>
-            axiosInstance.put(`https://127.0.0.1:8000${endpoint}`, item)
-        );
-        const promise = await Promise.all(updatePromise);
-        const status = promise.map((result) => result.status)[0];
-        if (status === 204) { // noinspection ExceptionCaughtLocallyJS
-            return Promise.reject("Data not found");
-        }
-        console.log("All changes saved successfully.");
+        data.map(async (item: any) => {
+            const endpoint = getEndpoint(item);
+            if (item.id) {
+                const updateResult = await axiosInstance.put(`https://127.0.0.1:8000${endpoint}`, item);
+                if (updateResult.status === 204) {
+                    return Promise.reject("Data not found");
+                }
+            } else {
+                const createResult = await axiosInstance.post(`https://127.0.0.1:8000${endpoint}`, item);
+                if (createResult.status === 204) {
+                    return Promise.reject("Data not found");
+                }
+            }
+        });
     } catch (error) {
-        console.error("Failed to save changes:", error);
-        throw new Error("Failed to save changes. Please try again.");
+        throw new Error("Error");
     }
 };
 
-const GenericTable = <T extends { id: number }>({
-                                                    fetchData,
-                                                    saveData,
-                                                    columns,
-                                                    queryKey,
-                                                    tableTitle
-                                                }: GenericTableProps<T>) => {
-    const {data, isLoading, error} = useQuery<T[], Error>({
+export const deleteData = async (
+    item: any,
+    refetch?: (options?: any) => any,
+): Promise<void> => {
+    const endpoint = getEndpoint(item);
+    const createResult = await axiosInstance.delete(`https://127.0.0.1:8000${endpoint}`, item);
+    if (createResult.status === 204) {
+        return Promise.reject("Data not found");
+    }
+    if (refetch) {
+        await refetch();
+    }
+}
+
+const GenericTable = <T extends { id: number | undefined | null, eType: EntityType | undefined | null }
+>({
+      fetchData,
+      saveData,
+      columns,
+      queryKey,
+      tableTitle
+  }: GenericTableProps<T>) => {
+    const {data, isLoading, error, refetch} = useQuery<T[], Error>({
         queryKey,
         queryFn: fetchData,
         refetchOnWindowFocus: false
     });
-
     const [loading] = React.useState(false);
 
     const [sortColumn, setSortColumn] = useState<keyof T | null>(null);
@@ -70,6 +126,8 @@ const GenericTable = <T extends { id: number }>({
     const [editableData, setEditableData] = useState<T[]>([]);
     const [hasChanges, setHasChanges] = useState(false);
     const [saving, setSaving] = useState(false);
+
+    const [AddressAddModalIsOpen, setAddressAddModalIsOpen] = useState(false);
 
     useEffect(() => {
         if (data) {
@@ -103,8 +161,11 @@ const GenericTable = <T extends { id: number }>({
     };
 
     const handleCellChange = (id: number, key: string, value: any) => {
-        const nextData = editableData.map((item) =>
-            item.id === id ? {...item, [key]: value} : item
+        const nextData = editableData.map((item) => {
+                // console.log("item.id = " + JSON.stringify(item.id));
+                // console.log("id = " + JSON.stringify(id));
+                return item.id === id ? {...item, [key]: value} : item;
+            }
         );
         setEditableData(nextData);
         setHasChanges(true);
@@ -126,6 +187,7 @@ const GenericTable = <T extends { id: number }>({
             return;
         }
         const changedData = getChangedData();
+
         if (changedData.length === 0) {
             alert("No changes to save.");
             setHasChanges(false);
@@ -159,7 +221,22 @@ const GenericTable = <T extends { id: number }>({
 
     return (
         <div>
-            <h1>{tableTitle}</h1>
+            <AddressAddModal
+                parentID={getCustomerID()}
+                refetch={refetch}
+                show={AddressAddModalIsOpen}
+                onCancel={() => setAddressAddModalIsOpen(false)}
+                onSubmit={() => setAddressAddModalIsOpen(false)}
+            />
+            <Stack
+            justifyContent="flex-start"
+            spacing={10}
+            alignItems="center">
+                <h1>{tableTitle}</h1>
+                <div>
+                    <Button size={"lg"} onClick={() => setAddressAddModalIsOpen(true)}>Add</Button>
+                </div>
+            </Stack>
             <Table
                 data={sortedData}
                 autoHeight={true}
@@ -167,33 +244,32 @@ const GenericTable = <T extends { id: number }>({
                 sortType={sortType as any}
                 onSortColumn={handleSortColumn as any}
                 loading={loading}>
-                bordered={true}
-                cellBordered={true}
-                {/*hover={true}*/}
-
                 {columns.map((column, index) => (
-                    <Table.Column
-                        key={index}
-                        width={column.width}
-                        fixed={column.fixed}
-                        align={column.align}
-                        resizable
-                        sortable
-                        fullText
-                    >
-                        <Table.HeaderCell>{column.title}</Table.HeaderCell>
-                        <CompactCell
-                            dataKey={column.dataKey}
-                            rowData={data}
-                            editable={column.editable}
-                            onEdit={handleCellChange}
-                            render={column.render}
-                        />
-                    </Table.Column>
-                ))}
+                    column.visible === false ? (<></>) : (
+                        <Table.Column
+                            key={index}
+                            width={column.width}
+                            fixed={column.fixed}
+                            align={column.align}
+                            resizable
+                            sortable
+                            fullText
+                        >
+                            <Table.HeaderCell>{column.title}</Table.HeaderCell>
+                            <CompactCell
+                                dataKey={column.dataKey}
+                                rowData={data}
+                                editable={column.editable}
+                                onEdit={handleCellChange}
+                                render={(rowData) => column?.render?.(rowData, refetch) ?? rowData[column.dataKey]}
+                            />
+                        </Table.Column>
+                    )
+                ))
+                }
             </Table>
             {hasChanges && (
-                <div style={{marginTop: "10px", textAlign: "right"}}>
+                <div style={{marginTop: "10px", textAlign: "left"}}>
                     <Button
                         appearance="primary"
                         onClick={handleSave}

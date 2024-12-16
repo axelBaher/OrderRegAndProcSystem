@@ -1,52 +1,68 @@
-import {TableColumn} from "./GenericTable";
+import {deleteData, TableColumn} from "./GenericTable";
+import PlusIcon from "@rsuite/icons/Trash";
+import {IconButton} from "rsuite";
+import React from "react";
+import {useQuery} from "@tanstack/react-query";
 
-export interface Customer {
-    id: number;
-    first_name: string;
-    last_name: string;
-    patronymic: string;
-    nickname: string;
-    sex: boolean;
-    deleted: boolean;
+export type EntityType = "Customers" | "Orders" | "Addresses" | "Contacts"
+
+export class Customer {
+    id: number | undefined;
+    first_name: string | undefined;
+    last_name: string | undefined;
+    patronymic: string | undefined;
+    nickname: string | undefined;
+    sex: boolean | undefined;
+    deleted: boolean | undefined;
+    eType: EntityType | undefined = "Customers";
 }
 
-export interface Order {
-    id: number;
-    customer_id: number;
-    total: number;
-    code: string;
-    deleted: boolean;
+export class Order {
+    id: number | undefined;
+    customer_id: number | undefined;
+    total: number | undefined;
+    code: string | undefined;
+    deleted: boolean | undefined;
+    eType: EntityType | undefined = "Orders";
 }
 
-export interface Address {
-    id: number;
-    customer_id: number;
-    address: string;
-    deleted: boolean;
+export class Address {
+    id: number | undefined;
+    customer_id: number | undefined;
+    address: string | undefined;
+    deleted: boolean | undefined;
+    eType: EntityType | undefined = "Addresses";
 }
 
-export interface Contact {
-    id: number;
-    customer_id: number;
-    type: number;
-    contact: string;
-    note: string;
-    deleted: boolean;
-}
-
-export interface Order {
-    id: number;
-    customer_id: number;
-    total: number;
-    code: string;
-    deleted: boolean;
-}
-
-export interface CustomerDetails {
-    id: number;
+export class Contact {
+    id: number | undefined;
+    customer_id: number | undefined;
+    type: number | undefined;
+    contact: string | undefined;
+    note: string | undefined;
+    deleted: boolean | undefined;
+    eType: EntityType | undefined = "Contacts";
 }
 
 export const customerColumns: TableColumn<Customer>[] = [
+    {
+        title: "",
+        dataKey: "id",
+        width: 70,
+        align: "center",
+        fixed: true,
+        editable: false,
+        render: (customer: any, refetch?: (props: any) => any) => {
+            return (<IconButton size={"xs"} icon={<PlusIcon/>}
+                                onClick={() => {
+                                    // const {refetch} = useQuery<any>({
+                                    //     queryKey: ["Customer"]
+                                    // });
+
+                                    deleteData({...customer, eType: "Customer"}, refetch).then();
+                                }}>Delete</IconButton>)
+        }
+    },
     {title: "ID", dataKey: "id", width: 70, align: "center", fixed: true, editable: false},
     {title: "First Name", dataKey: "first_name", width: 200, fixed: true, editable: true},
     {title: "Last Name", dataKey: "last_name", width: 200, fixed: true, editable: true},
@@ -71,6 +87,18 @@ export const customerColumns: TableColumn<Customer>[] = [
 ];
 
 export const addressColumns: TableColumn<Address>[] = [
+    {
+        title: "", dataKey: "id", width: 70, align: "center", fixed: true, editable: false,
+        render: (address: any, refetch?: (props: any) => any) => {
+            return <IconButton size={"xs"} icon={<PlusIcon/>}
+                               onClick={() => {
+                                   // const {refetch} = useQuery<any>({
+                                   //     queryKey: ["Address"]
+                                   // });
+                                   deleteData({...address, eType: "Address"}, refetch).then();
+                               }}>Delete</IconButton>
+        }
+    },
     {title: "ID", dataKey: "id", width: 70, align: "center", fixed: true, editable: false},
     {title: "Customer ID", dataKey: "customer_id", width: 100, fixed: true, editable: false},
     {title: "Address", dataKey: "address", width: 200, fixed: true, editable: true},
@@ -106,8 +134,6 @@ export const contactColumns: TableColumn<Contact>[] = [
         render: (contact: Contact) => (contact.deleted ? "Deleted" : "Not Deleted"),
     },
 ];
-
-export const customerDetailsColumns: TableColumn<CustomerDetails>[] = [];
 
 export const orderColumns: TableColumn<Order>[] = [
     {title: "ID", dataKey: "id", width: 70, align: "center", fixed: true, editable: false},

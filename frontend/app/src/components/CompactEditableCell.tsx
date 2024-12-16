@@ -6,7 +6,7 @@ interface CompactCellProps extends React.ComponentProps<typeof Table.Cell> {
     rowData: any,
     dataKey: string,
     onEdit?: (id: number, key: string, value: any) => void,
-    render?: (rowData: any) => React.ReactNode;
+    render?: (rowData: any, refetch?: (props:any) => any) => React.ReactNode;
 }
 
 const CompactCell: React.FC<CompactCellProps> = ({

@@ -1,5 +1,5 @@
 // CustomerDetails.tsx
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {
     Customer,
     Address,
@@ -34,20 +34,6 @@ export function getCustomerID(): number {
     }
 }
 
-// const fetchCustomerDetails = async () => {
-//     const [customerData, addressData, contactData
-//     ] = await Promise.all([
-//         axiosInstance.get("https://127.0.0.1:8000/customers/1"),
-//         axiosInstance.get("https://127.0.0.1:8000/customers/1/addresses"),
-//         axiosInstance.get("https://127.0.0.1:8000/customers/1/contacts"),
-//     ]);
-//
-//     return {
-//         customer: customerData.data,
-//         address: addressData.data,
-//         contact: contactData.data
-//     };
-// };
 const GET_fetchCustomer = async (): Promise<Customer[]> => {
     try {
         const response = await axiosInstance.get<Customer>(
@@ -58,6 +44,7 @@ const GET_fetchCustomer = async (): Promise<Customer[]> => {
         throw e
     }
 };
+
 const GET_fetchCustomerAddressList = async (): Promise<Address[]> => {
     try {
         const response = await axiosInstance.get<Address[]>(
@@ -68,6 +55,7 @@ const GET_fetchCustomerAddressList = async (): Promise<Address[]> => {
         throw e
     }
 };
+
 const GET_fetchCustomerContactList = async (): Promise<Contact[]> => {
     try {
         const response = await axiosInstance.get<Contact[]>(
@@ -94,10 +82,13 @@ const CustomerDetailsPage: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const token = localStorage.getItem("token");
-    const customerID = getCustomerID();
-    const addressID = -1;
-    const contactID = -1;
-    const orderID = -1;
+    // const customerID = getCustomerID();
+    // const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
+    // const [selectedContactId, setSelectedContactId] = useState<number | null>(null);
+    // const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+    // const addressID = -1;
+    // const contactID = -1;
+    // const orderID = -1;
     // console.log("Loc. key: " + location.key);
     useEffect(() => {
         if ((location.key === "default") && (!token)) {
@@ -106,16 +97,38 @@ const CustomerDetailsPage: React.FC = () => {
     }, [location.key, token, navigate]);
     return (
         <div>
-            <GenericTable fetchData={GET_fetchCustomer} columns={customerColumns} queryKey={["customer"]} tableTitle={"Customer"}
-                          saveData={(data) => saveData(`/customers/${customerID}`, data)}/>
+            <GenericTable fetchData={GET_fetchCustomer} columns={customerColumns} queryKey={["customer"]}
+                          tableTitle={"Customer"}
+                          // saveData={(data) => saveData(`/customers/${customerID}`, data)}
+                          saveData={(data) => saveData(data.map(x => {
+                              x.eType = "Customers";
+                              return x;
+                          }))}
+            />
             <GenericTable fetchData={GET_fetchCustomerAddressList} columns={addressColumns} queryKey={["addresses"]}
                           tableTitle={"Addresses"}
-                          saveData={(data) => saveData(`/customers/${customerID}/addresses/${addressID}`, data)}/>
+                          // saveData={(data) => saveData(`/customers/${customerID}/addresses/${addressID}`, data)}
+                          saveData={(data) => saveData(data.map(x => {
+                              x.eType = "Addresses";
+                              return x;
+                          }))}
+            />
             <GenericTable fetchData={GET_fetchCustomerContactList} columns={contactColumns} queryKey={["contacts"]}
                           tableTitle={"Contacts"}
-                          saveData={(data) => saveData(`/customers/${customerID}/contacts/${contactID}`, data)}/>
-            <GenericTable fetchData={GET_fetchCustomerOrderList} columns={orderColumns} queryKey={["orders"]} tableTitle={"Orders"}
-                          saveData={(data) => saveData(`/customers/${customerID}/orders/${orderID}`, data)}/>
+                          // saveData={(data) => saveData(`/customers/${customerID}/contacts/${contactID}`, data)}
+                          saveData={(data) => saveData(data.map(x => {
+                              x.eType = "Contacts";
+                              return x;
+                          }))}
+            />
+            <GenericTable fetchData={GET_fetchCustomerOrderList} columns={orderColumns} queryKey={["orders"]}
+                          tableTitle={"Orders"}
+                          // saveData={(data) => saveData(`/customers/${customerID}/orders/${orderID}`, data)}
+                          saveData={(data) => saveData(data.map(x => {
+                              x.eType = "Orders";
+                              return x;
+                          }))}
+            />
         </div>
     )
 };

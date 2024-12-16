@@ -282,7 +282,7 @@ def delete_customer(customer_id: int, db: Session = Depends(get_db)):
 
 
 @CustomerRouter.delete(
-    path="/{customer_id}/addresses"
+    path="/{customer_id}/addresses/{address_id}"
 )
 def delete_customer_address(customer_id: int, address_id: int, db: Session = Depends(get_db)):
     return handle_exceptions(db=db, query_func=db_delete_customer_address,
@@ -290,7 +290,7 @@ def delete_customer_address(customer_id: int, address_id: int, db: Session = Dep
 
 
 @CustomerRouter.delete(
-    path="/{customer_id}/contacts"
+    path="/{customer_id}/contacts/{contact_id}"
 )
 def delete_customer_contact(customer_id: int, contact_id: int, db: Session = Depends(get_db)):
     return handle_exceptions(db=db, query_func=db_delete_customer_contact,
