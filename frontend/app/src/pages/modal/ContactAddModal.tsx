@@ -1,91 +1,56 @@
 import {Button, ButtonToolbar, Modal, Form} from "rsuite";
-import React from "react";
+import React, {useState} from "react";
+import axiosInstance from "../../api/axiosInstance";
+import {Notify} from "../../utils/Notify";
 
+export function ContactAddModal(props: {
+    parentID: any, refetch: (props?: any) => any, show: any, onCancel: any, onSubmit: any
+}) {
+    const [formValue, setFormValue] = useState({
+        contact: ""
+    });
 
-// <Modal open={show} onClose={onCancel}>
-//     <Modal.Header>
-//         <Modal.Title>Confirm Logout</Modal.Title>
-//     </Modal.Header>
-//     <Modal.Body>
-//         Are you sure you want to logout?
-//     </Modal.Body>
-//     <Modal.Footer>
-//         <ButtonToolbar>
-//             <Button onClick={onCancel} appearance="subtle">
-//                 Cancel
-//             </Button>
-//             <Button onClick={handleLogout} appearance="primary">
-//                 Logout
-//             </Button>
-//         </ButtonToolbar>
-//     </Modal.Footer>
-// </Modal>
+    const handleSubmit = async () => {
+        try {
+            await axiosInstance.post(`https://127.0.0.1:8000/customers/${props.parentID}/contacts`, {
+                contact: formValue.contact
+            });
+            await props.refetch();
+            props.onSubmit();
+            Notify.Success("New contact is added");
+        } catch (error) {
+            Notify.Error("Error while adding new contact, try again");
+        }
+    };
 
+    return (
+        <Modal open={props.show}>
+            <Modal.Header>
+                <Modal.Title>Add new contact</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Form fluid>
+                    <Form.Group>
+                        <Form.ControlLabel>Contact</Form.ControlLabel>
+                        <Form.Control
+                            name="contact"
+                            value={formValue.contact}
+                            onChange={(value) => setFormValue({...formValue, contact: value})}
+                        />
+                    </Form.Group>
+                </Form>
+            </Modal.Body>
+            <Modal.Footer>
+                <ButtonToolbar>
+                    <Button onClick={props.onCancel} appearance="subtle">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleSubmit} appearance="primary">
+                        Add
+                    </Button>
+                </ButtonToolbar>
+            </Modal.Footer>
+        </Modal>
+    )
+}
 
-
-//
-// <Form fluid>
-//     <Form.Group>
-//         <Form.ControlLabel>Логин</Form.ControlLabel>
-//         <Form.Control
-//             name="login"
-//             value={formValue.login}
-//             onChange={(value) => setFormValue({...formValue, login: value})}
-//         />
-//     </Form.Group>
-//     <Form.Group>
-//         <Form.ControlLabel>Пароль</Form.ControlLabel>
-//         <Form.Control
-//             name="password"
-//             type="password"
-//             value={formValue.password}
-//             onChange={(value) => setFormValue({...formValue, password: value})}
-//         />
-//     </Form.Group>
-//     <Form.Group>
-//         <Form.ControlLabel>Имя</Form.ControlLabel>
-//         <Form.Control
-//             name="first_name"
-//             value={formValue.first_name}
-//             onChange={(value) => setFormValue({...formValue, first_name: value})}
-//         />
-//     </Form.Group>
-//     <Form.Group>
-//         <Form.ControlLabel>Фамилия</Form.ControlLabel>
-//         <Form.Control
-//             name="last_name"
-//             value={formValue.last_name}
-//             onChange={(value) => setFormValue({...formValue, last_name: value})}
-//         />
-//     </Form.Group>
-//     <Form.Group>
-//         <Form.ControlLabel>Отчество</Form.ControlLabel>
-//         <Form.Control
-//             name="patronymic"
-//             value={formValue.patronymic}
-//             onChange={(value) => setFormValue({...formValue, patronymic: value})}
-//         />
-//     </Form.Group>
-//     <Form.Group>
-//         <Form.ControlLabel>Никнейм</Form.ControlLabel>
-//         <Form.Control
-//             name="nickname"
-//             value={formValue.nickname}
-//             onChange={(value) => setFormValue({...formValue, nickname: value})}
-//         />
-//     </Form.Group>
-//     <Form.Group>
-//         <Form.ControlLabel>Пол</Form.ControlLabel>
-//         <Form.Control
-//             name="sex"
-//             checked={formValue.sex}
-//             onChange={(value) => setFormValue({...formValue, sex: value})}
-//             type="checkbox"
-//         />
-//     </Form.Group>
-//     <Form.Group>
-//         <Button appearance="primary" onClick={handleSubmit}>
-//             Register
-//         </Button>
-//     </Form.Group>
-// </Form>

@@ -11,6 +11,7 @@ import PlusIcon from '@rsuite/icons/Trash';
 import CompactCell from "./CompactEditableCell";
 import {AddressAddModal} from "../pages/modal/AddressAddModal";
 import {getCustomerID} from "../pages/CustomerDetails";
+import {ContactAddModal} from "../pages/modal/ContactAddModal";
 
 export interface TableColumn<T> {
     title: string,
@@ -128,6 +129,7 @@ const GenericTable = <T extends { id: number | undefined | null, eType: EntityTy
     const [saving, setSaving] = useState(false);
 
     const [AddressAddModalIsOpen, setAddressAddModalIsOpen] = useState(false);
+    const [ContactAddModalIsOpen, setContactAddModalIsOpen] = useState(false);
 
     useEffect(() => {
         if (data) {
@@ -228,13 +230,29 @@ const GenericTable = <T extends { id: number | undefined | null, eType: EntityTy
                 onCancel={() => setAddressAddModalIsOpen(false)}
                 onSubmit={() => setAddressAddModalIsOpen(false)}
             />
+            <ContactAddModal
+                parentID={getCustomerID()}
+                refetch={refetch}
+                show={ContactAddModalIsOpen}
+                onCancel={() => setContactAddModalIsOpen(false)}
+                onSubmit={() => setContactAddModalIsOpen(false)}
+            />
+
             <Stack
             justifyContent="flex-start"
             spacing={10}
             alignItems="center">
                 <h1>{tableTitle}</h1>
                 <div>
-                    <Button size={"lg"} onClick={() => setAddressAddModalIsOpen(true)}>Add</Button>
+                    <Button size={"lg"} onClick={() => {
+                        switch (tableTitle) {
+                            case "Addresses":
+                                setAddressAddModalIsOpen(true);
+                                break;
+                            case "Contacts":
+                                setContactAddModalIsOpen(true);
+                        }
+                    }}>Add</Button>
                 </div>
             </Stack>
             <Table
