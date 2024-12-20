@@ -1,0 +1,13 @@
+### GET request for all customers
+GET https://127.0.0.1:8000/customers
+Accept: application/json
+
+### GET request for a single customer
+GET https://127.0.0.1:8000/customers/3
+Accept: application/json
+
+### POST request for a customer
+POST https://127.0.0.1:8000/customers
+Content-Type: application/json
+
+{"first_name": "John", "last_name": "Doe", "patronymic": "Smith", "nickname": "johndoe", "sex": true}
