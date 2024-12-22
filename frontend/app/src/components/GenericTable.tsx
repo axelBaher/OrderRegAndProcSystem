@@ -37,18 +37,22 @@ interface GenericTableProps<T> {
 function getEndpoint(item: any) {
     let endpoint = null;
     switch (item.eType) {
-        case "Customer":
+        case "Customers":
             endpoint = `/customers/${item.id ?? ""}`;
             break;
-        case "Address":
+        case "Addresses":
             endpoint = `/customers/${item.customer_id}/addresses/${item.id ?? ""}`;
             break;
-        case "Contact":
+        case "Contacts":
             endpoint = `/customers/${item.customer_id}/contacts/${item.id ?? ""}`;
             break;
-        case "Order":
+        case "Orders":
             endpoint = `/customers/${item.customer_id}/orders/${item.id ?? ""}`;
             break;
+        default:
+            console.log("getEndpoint")
+            console.log(item.eType)
+            return ""
     }
     return endpoint;
 }
@@ -74,6 +78,8 @@ export const saveData = async <T extends { id: number | undefined | null, eType:
     try {
         data.map(async (item: any) => {
             const endpoint = getEndpoint(item);
+            console.log("saveData");
+            console.log(item);
             if (item.id) {
                 const updateResult = await axiosInstance.put(`https://127.0.0.1:8000${endpoint}`, item);
                 if (updateResult.status === 204) {
@@ -188,6 +194,7 @@ const GenericTable = <T extends { id: number | undefined | null, eType: EntityTy
             setHasChanges(false);
             return;
         }
+        console.log("handleSave")
         const changedData = getChangedData();
 
         if (changedData.length === 0) {
@@ -239,21 +246,23 @@ const GenericTable = <T extends { id: number | undefined | null, eType: EntityTy
             />
 
             <Stack
-            justifyContent="flex-start"
-            spacing={10}
-            alignItems="center">
+                justifyContent="flex-start"
+                spacing={10}
+                alignItems="center">
                 <h1>{tableTitle}</h1>
-                <div>
-                    <Button size={"lg"} onClick={() => {
-                        switch (tableTitle) {
-                            case "Addresses":
-                                setAddressAddModalIsOpen(true);
-                                break;
-                            case "Contacts":
-                                setContactAddModalIsOpen(true);
-                        }
-                    }}>Add</Button>
-                </div>
+                {tableTitle === "Customer" ? <></> :
+                    <div>
+                        <Button size={"lg"} onClick={() => {
+                            switch (tableTitle) {
+                                case "Addresses":
+                                    setAddressAddModalIsOpen(true);
+                                    break;
+                                case "Contacts":
+                                    setContactAddModalIsOpen(true);
+                            }
+                        }}>Add</Button>
+                    </div>
+                }
             </Stack>
             <Table
                 data={sortedData}

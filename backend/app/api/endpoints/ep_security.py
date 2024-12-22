@@ -35,12 +35,14 @@ def get_current_customer(token: HTTPAuthorizationCredentials = Depends(security)
 @SecurityRouter.post(
     path="/register",
     status_code=status.HTTP_201_CREATED)
-def register_customer(login: str, password: str, customer_data: dict, db: Session = Depends(get_db)):
+def register_customer(customer_data: dict, db: Session = Depends(get_db)):
     """
     {"first_name": "John", "last_name": "Doe", "patronymic": "Smith", "nickname": "johndoe", "sex": true}
     """
+    print("ENDPOINT")
+    print(customer_data)
     return handle_exceptions(db=db, query_func=db_register_customer,
-                             query_args={"login": login, "password": password, "customer_data": customer_data},
+                             query_args={"customer_data": customer_data},
                              expected_status_code=status.HTTP_201_CREATED)
 
 

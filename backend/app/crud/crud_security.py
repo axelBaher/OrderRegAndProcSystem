@@ -36,12 +36,16 @@ def verify_token(token):
         return None
 
 
-def db_register_customer(login: str, password: str, customer_data: dict, db: Session):
-    customer = db.query(m.Customer).filter(m.Customer.login == login).first()
+def db_register_customer(customer_data: dict, db: Session):
+    print("CRUD")
+    customer_data = customer_data["customer_data"]
+    print(customer_data)
+    customer = db.query(m.Customer).filter(m.Customer.login == customer_data["login"]).first()
     if customer:
         raise HTTPException(status_code=400, detail="User already exists")
-    hashed_password = hash_password(password=password)
-    customer_data["login"] = login
+    # hashed_password = hash_password(password=password)
+    hashed_password = hash_password(password=customer_data["password"])
+    # customer_data["login"] = login
     customer_data["password"] = hashed_password
     new_customer = m.Customer(**customer_data)
     db.add(new_customer)
