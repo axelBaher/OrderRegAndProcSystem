@@ -246,21 +246,23 @@ const GenericTable = <T extends { id: number | undefined | null, eType: EntityTy
             />
 
             <Stack
-            justifyContent="flex-start"
-            spacing={10}
-            alignItems="center">
+                justifyContent="flex-start"
+                spacing={10}
+                alignItems="center">
                 <h1>{tableTitle}</h1>
-                <div>
-                    <Button size={"lg"} onClick={() => {
-                        switch (tableTitle) {
-                            case "Addresses":
-                                setAddressAddModalIsOpen(true);
-                                break;
-                            case "Contacts":
-                                setContactAddModalIsOpen(true);
-                        }
-                    }}>Add</Button>
-                </div>
+                {tableTitle === "Customer" ? <></> :
+                    <div>
+                        <Button size={"lg"} onClick={() => {
+                            switch (tableTitle) {
+                                case "Addresses":
+                                    setAddressAddModalIsOpen(true);
+                                    break;
+                                case "Contacts":
+                                    setContactAddModalIsOpen(true);
+                            }
+                        }}>Add</Button>
+                    </div>
+                }
             </Stack>
             <Table
                 data={sortedData}
