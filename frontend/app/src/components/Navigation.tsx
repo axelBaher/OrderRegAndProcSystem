@@ -31,11 +31,11 @@ const Navigation = () => {
         // console.log("isAuth-inApp-authNavItems: " + authContext?.isAuthenticated);
         return (
             <>
-                <Nav.Item
-                    onClick={() => {
-                        navigator("/customers");
-                    }}>
-                    All customers</Nav.Item>
+                {/*<Nav.Item*/}
+                {/*    onClick={() => {*/}
+                {/*        navigator("/customers");*/}
+                {/*    }}>*/}
+                {/*    All customers</Nav.Item>*/}
 
                 {localStorage.getItem("token") ? (
                     <>
